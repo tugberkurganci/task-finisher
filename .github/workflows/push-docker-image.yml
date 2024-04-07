@@ -32,7 +32,7 @@ jobs:
 
     strategy:
       matrix:
-        image_name: ["app"]
+        image_name: ["app1"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
