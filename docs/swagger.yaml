@@ -1,0 +1,192 @@
+definitions:
+  dto.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      token:
+        type: string
+    type: object
+  globalerror.ErrorResponse:
+    properties:
+      errorDetail:
+        items:
+          $ref: '#/definitions/globalerror.ErrorResponseDetail'
+        type: array
+      status:
+        type: integer
+    type: object
+  globalerror.ErrorResponseDetail:
+    properties:
+      description:
+        type: string
+      fieldName:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      completed:
+        type: boolean
+      deadline:
+        type: string
+      error:
+        type: boolean
+      id:
+        type: integer
+      interval:
+        type: string
+      maxRetries:
+        type: integer
+      payload:
+        type: string
+      priority:
+        type: integer
+      retry:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: This is an Task Api just for concurent Task
+  termsOfService: http://swagger.io/terms/
+  title: Task Api
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user with the provided email and password
+      parameters:
+      - description: User email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: User password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logged in user information
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/globalerror.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/globalerror.ErrorResponse'
+      summary: Logs a user into the application
+      tags:
+      - Authentication
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with the provided email, password, and name
+      parameters:
+      - description: User email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      - description: User password
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      - description: User name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Registered user information
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/globalerror.ErrorResponse'
+        "422":
+          description: Unprocessable entity
+          schema:
+            $ref: '#/definitions/globalerror.ErrorResponse'
+      summary: Registers a new user in the application
+      tags:
+      - Authentication
+  /tasks:
+    post:
+      consumes:
+      - application/json
+      description: Add a new task to the task queue
+      parameters:
+      - description: Task object to be added
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.Task'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Task added successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Add a new task
+      tags:
+      - Tasks
+  /tasks/{id}:
+    get:
+      description: Get the status of a task by its ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Task status
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Invalid task ID
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Get task status
+      tags:
+      - Tasks
+swagger: "2.0"

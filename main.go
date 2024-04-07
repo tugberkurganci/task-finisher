@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"konzek-mid/app"
 	"konzek-mid/config"
+	_ "konzek-mid/docs"
 	"konzek-mid/loggerx"
 	"konzek-mid/middleware"
 	"konzek-mid/prometheus"
@@ -12,10 +13,16 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gofiber/swagger"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+// @title			Task Api
+// @version		1.0
+// @description	This is an Task Api just for concurent Task
+// @termsOfService	http://swagger.io/terms/
 func main() {
 
 	prometheus.InitPrometheus()
@@ -50,9 +57,11 @@ func main() {
 	authHandler := app.NewAuthHandler(authService, jwtService, userService)
 
 	app := fiber.New()
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
 	app.Use(func(ctx *fiber.Ctx) error {
 		// Middleware'i atlamak istediğimiz endpointlerin adları
-		skipEndpoints := []string{"/register", "/login", "/metrics", "/swagger-ui/index.html"}
+		skipEndpoints := []string{"/auth/register", "/auth/login", "/metrics", "/swagger/index.html"}
 
 		// Endpoint adını kontrol et
 		for _, skipEndpoint := range skipEndpoints {
@@ -69,12 +78,13 @@ func main() {
 	})
 
 	// Define routes
+
 	app.Post("/tasks", taskHandler.AddTaskHandler)
 	app.Get("/tasks/:id", taskHandler.GetTaskStatusHandler)
 	app.Post("/tasks", taskHandler.AddTaskHandler)
 	app.Get("/tasks/:id", taskHandler.GetTaskStatusHandler)
-	app.Post("/register", authHandler.Register)
-	app.Post("/login", authHandler.Login)
+	app.Post("/auth/register", authHandler.Register)
+	app.Post("/auth/login", authHandler.Login)
 
 	// Start Fiber server
 	log.Fatal(app.Listen(":8080"))
