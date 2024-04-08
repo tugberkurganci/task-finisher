@@ -68,7 +68,7 @@ func (ts *TaskServiceImpl) ScheduleTasks() {
 					if duration.Seconds() > 0 {
 
 						updatedTask := task // Orijinal görevin bir kopyasını oluşturun
-						updatedTask.Deadline = task.Deadline.Add(duration)
+						updatedTask.Deadline = time.Now().Add(duration)
 
 						ts.TaskQueue <- updatedTask
 						continue

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"konzek-mid/globalerror"
 	"konzek-mid/models"
 	"konzek-mid/service"
@@ -31,24 +32,27 @@ func NewTaskHandler(taskService service.TaskService) *TaskHandler {
 // @Router /tasks [post]
 func (th *TaskHandler) AddTaskHandler(c *fiber.Ctx) error {
 	var task models.Task
-	if errors := globalerror.Validate(task); len(errors) > 0 && errors[0].HasError {
-		return globalerror.HandleValidationErrors(c, errors)
-	}
+
 	if err := c.BodyParser(&task); err != nil {
 		return c.Status(http.StatusBadRequest).SendString(err.Error())
 	}
-	if _, err := th.TaskService.EnqueueTask(task); err != nil {
+	if errors := globalerror.Validate(task); len(errors) > 0 && errors[0].HasError {
+		return globalerror.HandleValidationErrors(c, errors)
+	}
+	InDB, err := th.TaskService.EnqueueTask(task)
+	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(globalerror.ErrorResponse{
 			Status: http.StatusInternalServerError,
 			ErrorDetail: []globalerror.ErrorResponseDetail{
 				{
 					FieldName:   "Task",
-					Description: " An error occurred while adding the task",
+					Description: "An error occurred while adding the task",
 				},
 			},
 		})
 	}
-	return c.Status(http.StatusCreated).SendString("Task added successfully")
+
+	return c.Status(http.StatusCreated).SendString(fmt.Sprintf("Task added successfully. Task ID: %d", InDB.ID))
 }
 
 // GetTaskStatusHandler handles getting task status via HTTP GET request.
@@ -73,7 +77,7 @@ func (th *TaskHandler) GetTaskStatusHandler(c *fiber.Ctx) error {
 			ErrorDetail: []globalerror.ErrorResponseDetail{
 				{
 					FieldName:   "Task",
-					Description: "An error occurred while fetching the tasks",
+					Description: "An error occurred while fetching the task",
 				},
 			},
 		})

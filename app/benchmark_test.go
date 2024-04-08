@@ -40,6 +40,8 @@ func TestConcurrentTaskStatusCheck(t *testing.T) {
 				t.Fatalf("İstek oluşturulurken bir hata oluştu: %v", err)
 			}
 			req.Header.Set("Content-Type", "application/json")
+			token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMzMiLCJleHAiOjE3NDMyNjQwNDcsImlhdCI6MTcxMTcyODA0NywiaXNzIjoiYWRtaW4ifQ.ajsUjVEIh0omBH19KYFHSf7Oi4qnXRVIhHjGnjmxpqM"
+			req.Header.Set("Authorization", token)
 
 			// İstek gönderme
 			client := &http.Client{}
@@ -79,14 +81,24 @@ func TestConcurrentTaskStatusCheck(t *testing.T) {
 	// Goroutine'lerin sayısı
 
 	// Gorutinlerle eşzamanlı istek gönderme
-	for i := 647; i < 747; i++ {
+	for i := 1154; i < 1254; i++ {
 		go func(taskID int) {
 			// HTTP isteği gönderme
-			resp, err := http.Get(fmt.Sprintf("http://localhost:8080/tasks/%d", taskID))
+			req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:8080/tasks/%d", taskID), nil)
+			if err != nil {
+				t.Errorf("İstek oluşturulurken bir hata oluştu: %v", err)
+				results <- false
+				return
+			}
+			token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMzMiLCJleHAiOjE3NDMyNjQwNDcsImlhdCI6MTcxMTcyODA0NywiaXNzIjoiYWRtaW4ifQ.ajsUjVEIh0omBH19KYFHSf7Oi4qnXRVIhHjGnjmxpqM"
+			req.Header.Set("Authorization", token)
+
+			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
 				t.Errorf("İstek gönderilirken bir hata oluştu: %v", err)
 				results <- false
 				return
+
 			}
 			defer resp.Body.Close()
 
@@ -114,7 +126,7 @@ func TestConcurrentTaskStatusCheck(t *testing.T) {
 			}
 
 			// "completed" alanını kontrol etme
-			completed, ok := responseBody["Completed"].(bool)
+			completed, ok := responseBody["completed"].(bool)
 			if !ok {
 				t.Errorf("Yanıtta 'completed' alanı beklenen formatta değil")
 				results <- false

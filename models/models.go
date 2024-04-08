@@ -8,15 +8,15 @@ import (
 )
 
 type Task struct {
-	ID         int
-	Payload    string
-	Deadline   time.Time
-	Retry      int
-	MaxRetries int
-	Priority   int
-	Interval   string
-	Completed  bool
-	Error      bool
+	ID         int       `json:"id"`
+	Payload    string    `json:"payload,omitempty" validate:"required,min=2"`
+	Deadline   time.Time `json:"deadline"`
+	Retry      int       `json:"retry"`
+	MaxRetries int       `json:"max_retries"`
+	Priority   int       `json:"priority"`
+	Interval   string    `json:"interval"`
+	Completed  bool      `json:"completed"`
+	Error      bool      `json:"error"`
 }
 
 type Worker struct {
@@ -26,8 +26,8 @@ type Worker struct {
 	DB        *sql.DB
 }
 type User struct {
-	ID       int64  `gorm:"primary_key:auto_increment" json:"-"`
-	Name     string `gorm:"type:varchar(100)" json:"name,omitempty" validate:"required,min=2"`
-	Email    string `gorm:"type:varchar(100);unique;" json:"email,omitempty" validate:"required,email"`
-	Password string `gorm:"type:varchar(100)" json:"password,omitempty" validate:"required,min=6"`
+	ID       int64  `json:"-"`
+	Name     string `json:"name,omitempty" validate:"required,min=2"`
+	Email    string `json:"email,omitempty" validate:"required,email"`
+	Password string `json:"password,omitempty" validate:"required,min=6"`
 }
