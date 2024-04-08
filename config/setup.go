@@ -60,7 +60,7 @@ func EnvPostgresURI() string {
 	port := "5432"
 	user := "postgres"
 	password := "test"
-	dbname := "xx"
+	dbname := "konzek"
 
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
