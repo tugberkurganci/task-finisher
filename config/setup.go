@@ -56,7 +56,7 @@ func ConnectDB() *sql.DB {
 }
 func EnvPostgresURI() string {
 
-	host := "localhost"
+	host := "postgres"
 	port := "5432"
 	user := "postgres"
 	password := "test"
