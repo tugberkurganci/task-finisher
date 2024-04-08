@@ -10,8 +10,9 @@ var (
 		Help: "Total number of requests processed",
 	})
 	TaskDuration = prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Name: "myapp_task_duration_seconds",
-		Help: "Duration of task processing",
+		Name:    "myapp_task_duration_seconds",
+		Help:    "Duration of task processing",
+		Buckets: []float64{0.1, 0.5, 1},
 	}, []string{"taskID"})
 	TaskSuccess = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "myapp_task_success",

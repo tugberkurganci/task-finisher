@@ -99,8 +99,10 @@ func (w *WorkerImpl) processWithRetry(task models.Task) error {
 		backoff := time.Duration(retries+1) * initialBackoff
 		time.Sleep(backoff)
 	}
+	processTıme := time.Since(startTime).Seconds()
+	prometheus.TaskDuration.WithLabelValues(strconv.Itoa(task.ID)).Observe(processTıme)
 	prometheus.TaskSuccess.WithLabelValues(strconv.Itoa(task.ID)).Set(0)
-	prometheus.TaskDuration.WithLabelValues(strconv.Itoa(task.ID)).Observe(time.Since(startTime).Seconds())
+
 	return fmt.Errorf("task %d failed after maximum retries", task.ID)
 }
 
