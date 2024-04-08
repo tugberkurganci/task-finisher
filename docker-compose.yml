@@ -22,8 +22,8 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
   your_other_service:
-    image: ghcr.io/tugberkurganci/app:main
-    container_name: fecbcbd08f3a4c5fbe524f0811bf7d58dcc89c102bca9d083e5ad690c0c42b95
+    image: ghcr.io/tugberkurganci/app1:main
+    container_name: b5c3cb578f765cc38a5498ce4717e306701cbdb1fb72de78b38046a53cdf1eb8
     restart: always
     ports:
       - "8080:8080"
