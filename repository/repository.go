@@ -25,10 +25,7 @@ func NewTaskRepository(db *sql.DB) TaskRepository {
 	return &TaskRepositoryImpl{DB: db}
 }
 func (tr *TaskRepositoryImpl) InsertTask(task models.Task) (models.Task, error) {
-	// SQL sorgusu çalıştırılırken, RETURNING ifadesi kullanılarak eklenen görevin tüm alanları alınır
 	var insertedTask models.Task
-
-	// String olarak tutulan interval'i time.Duration'a dönüştürme
 
 	err := tr.DB.QueryRow("INSERT INTO tasks (payload, deadline, retry, max_retries, priority, task_interval, completed, error) VALUES ($1, $2, $3, $4, $5, $6, $7,$8) RETURNING id, payload, deadline, retry, max_retries, priority, task_interval, completed,error",
 		task.Payload, task.Deadline, 0, 5, task.Priority, task.Interval, false, false).Scan(&insertedTask.ID, &insertedTask.Payload, &insertedTask.Deadline, &insertedTask.Retry, &insertedTask.MaxRetries, &insertedTask.Priority, &insertedTask.Interval, &insertedTask.Completed, &insertedTask.Error)
@@ -40,7 +37,6 @@ func (tr *TaskRepositoryImpl) InsertTask(task models.Task) (models.Task, error) 
 	return insertedTask, nil
 }
 
-// MarkTaskCompleted marks a task as completed in the database.
 func (tr *TaskRepositoryImpl) MarkTaskCompleted(task models.Task) error {
 	intervalDuration, _ := time.ParseDuration(task.Interval)
 	if intervalDuration > 0 {
@@ -60,7 +56,6 @@ func (tr *TaskRepositoryImpl) MarkTaskCompleted(task models.Task) error {
 	return nil
 }
 
-// GetTaskByID retrieves a task from the database by its ID.
 func (tr *TaskRepositoryImpl) GetTaskByID(taskID int) (models.Task, error) {
 	var task models.Task
 	err := tr.DB.QueryRow("SELECT id, payload, deadline, retry, max_retries, priority, completed, error FROM tasks WHERE id = $1", taskID).Scan(
@@ -71,9 +66,7 @@ func (tr *TaskRepositoryImpl) GetTaskByID(taskID int) (models.Task, error) {
 	return task, nil
 }
 
-// GetPastScheduledTasks method retrieves tasks with deadline within the last 1 hour,
 func (tr *TaskRepositoryImpl) GetPastScheduledTasks() ([]models.Task, error) {
-	// Son bir saat içinde bitmemiş görevleri al
 	tasks, err := tr.DB.Query("SELECT id, payload, deadline, retry, max_retries, priority, task_interval, completed FROM tasks  WHERE deadline < NOW() AND completed = FALSE AND error = FALSE")
 	if err != nil {
 		fmt.Print(err)
